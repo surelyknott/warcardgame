@@ -65,9 +65,7 @@ async function drawTwo(){
 
   clearWarDisplay()
 
-  if (player1Deck.length === 0 || player2Deck.length === 0){
-    const winner = player1Deck.length === 0 ? 'Player 2' : 'Player 1'
-    resultEl.innerText = `${winner} wins the game!`
+  if (checkGameOver()){
     return
   }
 
@@ -97,6 +95,7 @@ async function drawTwo(){
   }
 
   updateScore()
+  checkGameOver()
 }
 
 function convertToNum(val){
@@ -120,6 +119,24 @@ function convertToNum(val){
 function updateScore(){
   player1ScoreEl.innerText = player1Score
   player2ScoreEl.innerText = player2Score
+}
+
+function checkGameOver(){
+  if (player1Deck.length === 52 || player2Deck.length === 52){
+    const winner = player1Deck.length === 52 ? 'Player 1' : 'Player 2'
+    resultEl.innerText = `${winner} wins the game!`
+    dealButton.disabled = true
+    return true
+  }
+
+  if (player1Deck.length === 0 || player2Deck.length === 0){
+    const winner = player1Deck.length === 0 ? 'Player 2' : 'Player 1'
+    resultEl.innerText = `${winner} wins the game!`
+    dealButton.disabled = true
+    return true
+  }
+
+  return false
 }
 
 async function handleWar(warPile){
@@ -222,6 +239,7 @@ function resetGame(){
   player2Img.src = warBackSrc
   clearWarDisplay()
   updateScore()
+  dealButton.disabled = false
   setupGame()
 
   setTimeout(() => {
