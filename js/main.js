@@ -16,6 +16,7 @@ const tableArea = document.querySelector('.tableArea')
 const player1ScoreEl = document.querySelector('#player1Score')
 const player2ScoreEl = document.querySelector('#player2Score')
 const resultEl = document.querySelector('#resultText')
+const cardsLeftLabel = document.querySelector('#cardsLeftLabel')
 const warContainer = document.querySelector('.warContainer')
 const warBackSrc = 'https://deckofcardsapi.com/static/img/back.png'
 const player1WarCards = [
@@ -129,6 +130,15 @@ function convertToNum(val){
 function updateScore(){
   player1ScoreEl.innerText = player1Deck.length
   player2ScoreEl.innerText = player2Deck.length
+
+  const handsRemaining = maxRounds - currentRound
+  if (handsRemaining <= 5 && handsRemaining > 0){
+    const handText = handsRemaining === 1 ? '1 hand remains...' : `${handsRemaining} hands remain...`
+    cardsLeftLabel.innerText = `Cards Left (${handText})`
+  }
+  else{
+    cardsLeftLabel.innerText = 'Cards Left'
+  }
 }
 
 function checkGameOver(){
