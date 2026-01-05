@@ -73,6 +73,7 @@ async function drawTwo(){
 
   const player1Card = player1Deck.shift()
   const player2Card = player2Deck.shift()
+  const roundPile = [player1Card, player2Card]
 
   player1Img.src = player1Card.image
   player2Img.src = player2Card.image
@@ -83,14 +84,16 @@ async function drawTwo(){
   if (player1Val > player2Val){
     resultEl.innerText = 'Player 1 Wins That Hand!'
     player1Score++
+    player1Deck.push(...roundPile)
   }
   else if (player1Val < player2Val){
     resultEl.innerText = 'Player 2 Wins That Hand!'
     player2Score++
+    player2Deck.push(...roundPile)
   }
   else {
     resultEl.innerText = 'Time for War...'
-    await handleWar()
+    await handleWar(roundPile)
   }
 
   updateScore()
@@ -119,30 +122,29 @@ function updateScore(){
   player2ScoreEl.innerText = player2Score
 }
 
-async function handleWar(){
-  if (player1Deck.length < 4 && player2Deck.length < 4){
-    resultEl.innerText = 'Both players are out of cards. Game over.'
-    return
-  }
-
-  if (player1Deck.length < 4){
-    resultEl.innerText = 'Player 1 cannot continue the war. Player 2 wins!'
-    player2Score++
-    updateScore()
-    return
-  }
-
-  if (player2Deck.length < 4){
-    resultEl.innerText = 'Player 2 cannot continue the war. Player 1 wins!'
-    player1Score++
-    updateScore()
-    return
-  }
-
-  player1Deck.splice(0, 3)
-  player2Deck.splice(0, 3)
+async function handleWar(warPile){
+  const player1Burned = player1Deck.splice(0, 3)
+  const player2Burned = player2Deck.splice(0, 3)
   const player1WarUp = player1Deck.shift()
   const player2WarUp = player2Deck.shift()
+
+  warPile.push(...player1Burned, ...player2Burned)
+
+  if (!player1WarUp || !player2WarUp){
+    const winnerIsPlayer1 = !!player1WarUp && !player2WarUp
+    const winnerDeck = winnerIsPlayer1 ? player1Deck : player2Deck
+    const winnerName = winnerIsPlayer1 ? 'Player 1' : 'Player 2'
+    resultEl.innerText = `${winnerName} wins the war!`
+    if (winnerIsPlayer1) player1Score++
+    else player2Score++
+    if (player1WarUp) warPile.push(player1WarUp)
+    if (player2WarUp) warPile.push(player2WarUp)
+    winnerDeck.push(...warPile)
+    updateScore()
+    return
+  }
+
+  warPile.push(player1WarUp, player2WarUp)
 
   await showWarDisplay(player1WarUp, player2WarUp)
 
@@ -152,14 +154,16 @@ async function handleWar(){
   if (player1Val > player2Val){
     resultEl.innerText = 'Player 1 wins the war!'
     player1Score++
+    player1Deck.push(...warPile)
   }
   else if (player1Val < player2Val){
     resultEl.innerText = 'Player 2 wins the war!'
     player2Score++
+    player2Deck.push(...warPile)
   }
   else{
     resultEl.innerText = 'War again!'
-    return handleWar()
+    return handleWar(warPile)
   }
 
   updateScore()
