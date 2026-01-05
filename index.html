@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+    	<meta charset="utf-8">
+    	<meta name="description" content="This is where your description goes">
+    	<meta name="keywords" content="one, two, three">
+
+		<title>Title in the tab</title>
+
+		<!-- external CSS link -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="css/normalize.css">
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+
+	<body>
+		<div class="titleAndButton">
+			<h1>WAR: Card Game!</h1>
+			<br>
+			<button id="dealButton">Deal Two Cards!</button>
+		</div>
+
+		<div class="warContainer">
+			
+			<div class="warRow">
+				<div class="warPlayer">
+					<h5>Player 1 War</h4>
+					<div class="warCards">
+						<img id="p1War1" class="warCard" src="" alt="war card">
+						<img id="p1War2" class="warCard" src="" alt="war card">
+						<img id="p1War3" class="warCard" src="" alt="war card">
+						<img id="p1War4" class="warCard" src="" alt="war card">
+					</div>
+				</div>
+				<!-- <h3 class="warTitle">War Cards</h3> -->
+				<div class="warPlayer">
+					<h5>Player 2 War</h4>
+					<div class="warCards">
+						<img id="p2War1" class="warCard" src="" alt="war card">
+						<img id="p2War2" class="warCard" src="" alt="war card">
+						<img id="p2War3" class="warCard" src="" alt="war card">
+						<img id="p2War4" class="warCard" src="" alt="war card">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="tableArea">
+			<div class="cardContainer">
+				<div class="p1Container">
+					<img id="player1" class="playerCard" src="https://deckofcardsapi.com/static/img/back.png" alt="playing card">
+					<h2>Player 1</h2>
+				</div>
+				<div class= "p2Container">
+					<img id="player2" class="playerCard" src="https://deckofcardsapi.com/static/img/back.png" alt="playing card">
+					<h2>Player 2</h2>
+				</div>
+			</div>
+
+			<h3 id="resultText">Result</h3>
+
+			<div class="scoreContainer">
+				<h3 class="currentScore">Current Score</h3>
+				<h4>Player 1: <span id="player1Score">0</span></h4>
+				<h4>Player 2: <span id="player2Score">0</span></h4>
+			</div>
+		</div>
+
+		<div class="resetContainer">
+			<button id="resetButton">Reset Game</button>
+		</div>
+		
+		
+
+		<script type="text/javascript" src="js/main.js"></script>
+	</body>
+</html>
