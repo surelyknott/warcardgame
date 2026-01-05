@@ -1,11 +1,11 @@
 // Figure out how to make the generated deck save into local storage 
 
 let deckId = ''
-let player1Score = 0
-let player2Score = 0
 let deckReady = false
 let player1Deck = []
 let player2Deck = []
+let currentRound = 0
+const maxRounds = 26
 const warRevealDelay = 700
 
 const dealButton = document.querySelector('#dealButton')
@@ -51,6 +51,8 @@ function setupGame(){
                 player1Deck = data.cards.slice(0, halfDeck)
                 player2Deck = data.cards.slice(halfDeck)
                 deckReady = true
+                currentRound = 0
+                updateScore()
               })
               .catch(err => {
                   console.log(`error ${err}`)
@@ -71,6 +73,8 @@ async function drawTwo(){
 
   const player1Card = player1Deck.shift()
   const player2Card = player2Deck.shift()
+  const battlePile = [player1Card, player2Card]
+  currentRound++
 
   player1Img.src = player1Card.image
   player2Img.src = player2Card.image
@@ -80,15 +84,24 @@ async function drawTwo(){
 
   if (player1Val > player2Val){
     resultEl.innerText = 'Player 1 Wins That Hand!'
-    player1Score++
+    player1Deck.push(...battlePile)
   }
   else if (player1Val < player2Val){
     resultEl.innerText = 'Player 2 Wins That Hand!'
-    player2Score++
+    player2Deck.push(...battlePile)
   }
   else {
     resultEl.innerText = 'Time for War...'
-    await handleWar()
+    const winner = await handleWar(battlePile)
+    if (!winner){
+      return
+    }
+    if (winner === 'p1'){
+      player1Deck.push(...battlePile)
+    }
+    else if (winner === 'p2'){
+      player2Deck.push(...battlePile)
+    }
   }
 
   updateScore()
@@ -114,11 +127,25 @@ function convertToNum(val){
 }
 
 function updateScore(){
-  player1ScoreEl.innerText = player1Score
-  player2ScoreEl.innerText = player2Score
+  player1ScoreEl.innerText = player1Deck.length
+  player2ScoreEl.innerText = player2Deck.length
 }
 
 function checkGameOver(){
+  if (currentRound >= maxRounds){
+    if (player1Deck.length > player2Deck.length){
+      resultEl.innerText = 'Player 1 wins the game!'
+    }
+    else if (player2Deck.length > player1Deck.length){
+      resultEl.innerText = 'Player 2 wins the game!'
+    }
+    else{
+      resultEl.innerText = 'Game ends in a tie!'
+    }
+    dealButton.disabled = true
+    return true
+  }
+
   if (player1Deck.length === 0 || player2Deck.length === 0){
     const winner = player1Deck.length === 0 ? 'Player 2' : 'Player 1'
     resultEl.innerText = `${winner} wins the game!`
@@ -129,33 +156,33 @@ function checkGameOver(){
   return false
 }
 
-async function handleWar(){
+async function handleWar(battlePile){
   if (player1Deck.length < 4 && player2Deck.length < 4){
     resultEl.innerText = 'Both out of cards! Game Over!'
     dealButton.disabled = true
+    updateScore()
     return
   }
 
   if (player1Deck.length < 4){
     resultEl.innerText = 'Player 2 wins the game!'
-    player2Score++
-    updateScore()
     dealButton.disabled = true
+    updateScore()
     return
   }
 
   if (player2Deck.length < 4){
     resultEl.innerText = 'Player 1 wins the game!'
-    player1Score++
-    updateScore()
     dealButton.disabled = true
+    updateScore()
     return
   }
 
-  player1Deck.splice(0, 3)
-  player2Deck.splice(0, 3)
+  battlePile.push(...player1Deck.splice(0, 3))
+  battlePile.push(...player2Deck.splice(0, 3))
   const player1WarUp = player1Deck.shift()
   const player2WarUp = player2Deck.shift()
+  battlePile.push(player1WarUp, player2WarUp)
 
   await showWarDisplay(player1WarUp, player2WarUp)
 
@@ -164,18 +191,16 @@ async function handleWar(){
 
   if (player1Val > player2Val){
     resultEl.innerText = 'Player 1 wins the war!'
-    player1Score++
+    return 'p1'
   }
   else if (player1Val < player2Val){
     resultEl.innerText = 'Player 2 wins the war!'
-    player2Score++
+    return 'p2'
   }
   else{
     resultEl.innerText = 'War again!'
-    return handleWar()
+    return handleWar(battlePile)
   }
-
-  updateScore()
 }
 
 function showWarDisplay(p1Up, p2Up){
@@ -220,11 +245,10 @@ function clearWarDisplay(){
 function resetGame(){
   tableArea.classList.add('resetting')
 
-  player1Score = 0
-  player2Score = 0
   player1Deck = []
   player2Deck = []
   deckReady = false
+  currentRound = 0
 
   resultEl.innerText = 'Result'
   player1Img.src = warBackSrc
