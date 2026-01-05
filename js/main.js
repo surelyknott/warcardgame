@@ -71,7 +71,6 @@ async function drawTwo(){
 
   const player1Card = player1Deck.shift()
   const player2Card = player2Deck.shift()
-  const roundPile = [player1Card, player2Card]
 
   player1Img.src = player1Card.image
   player2Img.src = player2Card.image
@@ -82,16 +81,14 @@ async function drawTwo(){
   if (player1Val > player2Val){
     resultEl.innerText = 'Player 1 Wins That Hand!'
     player1Score++
-    player1Deck.push(...roundPile)
   }
   else if (player1Val < player2Val){
     resultEl.innerText = 'Player 2 Wins That Hand!'
     player2Score++
-    player2Deck.push(...roundPile)
   }
   else {
     resultEl.innerText = 'Time for War...'
-    await handleWar(roundPile)
+    await handleWar()
   }
 
   updateScore()
@@ -122,13 +119,6 @@ function updateScore(){
 }
 
 function checkGameOver(){
-  if (player1Deck.length === 52 || player2Deck.length === 52){
-    const winner = player1Deck.length === 52 ? 'Player 1' : 'Player 2'
-    resultEl.innerText = `${winner} wins the game!`
-    dealButton.disabled = true
-    return true
-  }
-
   if (player1Deck.length === 0 || player2Deck.length === 0){
     const winner = player1Deck.length === 0 ? 'Player 2' : 'Player 1'
     resultEl.innerText = `${winner} wins the game!`
@@ -139,29 +129,33 @@ function checkGameOver(){
   return false
 }
 
-async function handleWar(warPile){
-  const player1Burned = player1Deck.splice(0, 3)
-  const player2Burned = player2Deck.splice(0, 3)
-  const player1WarUp = player1Deck.shift()
-  const player2WarUp = player2Deck.shift()
-
-  warPile.push(...player1Burned, ...player2Burned)
-
-  if (!player1WarUp || !player2WarUp){
-    const winnerIsPlayer1 = !!player1WarUp && !player2WarUp
-    const winnerDeck = winnerIsPlayer1 ? player1Deck : player2Deck
-    const winnerName = winnerIsPlayer1 ? 'Player 1' : 'Player 2'
-    resultEl.innerText = `${winnerName} wins the war!`
-    if (winnerIsPlayer1) player1Score++
-    else player2Score++
-    if (player1WarUp) warPile.push(player1WarUp)
-    if (player2WarUp) warPile.push(player2WarUp)
-    winnerDeck.push(...warPile)
-    updateScore()
+async function handleWar(){
+  if (player1Deck.length < 4 && player2Deck.length < 4){
+    resultEl.innerText = 'Both out of cards! Game Over!'
+    dealButton.disabled = true
     return
   }
 
-  warPile.push(player1WarUp, player2WarUp)
+  if (player1Deck.length < 4){
+    resultEl.innerText = 'Player 2 wins the game!'
+    player2Score++
+    updateScore()
+    dealButton.disabled = true
+    return
+  }
+
+  if (player2Deck.length < 4){
+    resultEl.innerText = 'Player 1 wins the game!'
+    player1Score++
+    updateScore()
+    dealButton.disabled = true
+    return
+  }
+
+  player1Deck.splice(0, 3)
+  player2Deck.splice(0, 3)
+  const player1WarUp = player1Deck.shift()
+  const player2WarUp = player2Deck.shift()
 
   await showWarDisplay(player1WarUp, player2WarUp)
 
@@ -171,16 +165,14 @@ async function handleWar(warPile){
   if (player1Val > player2Val){
     resultEl.innerText = 'Player 1 wins the war!'
     player1Score++
-    player1Deck.push(...warPile)
   }
   else if (player1Val < player2Val){
     resultEl.innerText = 'Player 2 wins the war!'
     player2Score++
-    player2Deck.push(...warPile)
   }
   else{
     resultEl.innerText = 'War again!'
-    return handleWar(warPile)
+    return handleWar()
   }
 
   updateScore()
